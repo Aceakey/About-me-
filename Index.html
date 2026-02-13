@@ -5,198 +5,276 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>17y Developer</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
-:root {
-    --primary: #00ffcc;
-    --bg: #0e0e0e;
-    --glass: rgba(255,255,255,0.05);
+:root{
+  --bg:#0a0a0d;
+  --glass:rgba(255,255,255,0.08);
+  --border:rgba(255,255,255,0.18);
+  --text:#ffffff;
+  --muted:#b0b0b0;
+  --accent:#ff003c;
 }
 
-body {
-    margin:0;
-    font-family:'Inter',sans-serif;
-    background: var(--bg);
-    color:white;
-    overflow-x:hidden;
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  height:100vh;
+  font-family:'Inter',sans-serif;
+  background:
+    radial-gradient(1200px 600px at 50% -20%, rgba(255,0,60,.12), transparent),
+    linear-gradient(#09090c,#0d0d12);
+  color:var(--text);
+  overflow:hidden;
 }
 
-/* Animated Gradient Background */
-body::before {
-    content:"";
-    position:fixed;
-    width:200%;
-    height:200%;
-    background: radial-gradient(circle at 20% 30%, rgba(0,255,204,0.15), transparent),
-                radial-gradient(circle at 80% 70%, rgba(255,0,150,0.1), transparent);
-    animation: moveBg 15s infinite alternate;
-    z-index:-2;
+/* PARTICLE RAIN */
+canvas{
+  position:fixed;
+  inset:0;
+  z-index:-1;
 }
 
-@keyframes moveBg {
-    from { transform: translate(0,0); }
-    to { transform: translate(-10%, -10%); }
+/* CENTER */
+.wrapper{
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
 }
 
-/* Container */
-.container {
-    text-align:center;
-    padding:100px 20px;
+/* LIQUID GLASS CARD */
+.card{
+  width:100%;
+  max-width:420px;
+  background:linear-gradient(
+    180deg,
+    rgba(255,255,255,.12),
+    rgba(255,255,255,.04)
+  );
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:36px 26px 30px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 30px 80px rgba(0,0,0,.65);
 }
 
-/* Profile */
-.profile {
-    backdrop-filter: blur(20px);
-    background: var(--glass);
-    border:1px solid rgba(255,255,255,0.1);
-    border-radius:20px;
-    padding:50px;
-    max-width:700px;
-    margin:auto;
-    box-shadow:0 0 40px rgba(0,0,0,0.5);
-    animation: fadeIn 1.5s ease;
+/* HEADER */
+h1{
+  margin:0;
+  font-size:2.6rem;
+  font-weight:800;
+  text-align:center;
 }
 
-@keyframes fadeIn {
-    from { opacity:0; transform:translateY(20px); }
-    to { opacity:1; transform:translateY(0); }
+.subtitle{
+  margin-top:10px;
+  text-align:center;
+  font-weight:600;
+  color:var(--accent);
 }
 
-h1 {
-    font-size:3rem;
-    font-weight:800;
+.desc{
+  margin-top:8px;
+  text-align:center;
+  color:var(--muted);
+  font-size:.95rem;
 }
 
-.age {
-    color:var(--primary);
-    margin-bottom:20px;
+/* TABS */
+.tabs{
+  margin:28px 0 22px;
+  display:flex;
+  gap:10px;
+  justify-content:center;
 }
 
-.typing {
-    height:30px;
-    margin-bottom:30px;
-    font-weight:600;
-    opacity:0.8;
+.tab{
+  padding:8px 16px;
+  border-radius:999px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text);
+  font-weight:600;
+  cursor:pointer;
 }
 
-/* Skills */
-.skills {
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:15px;
+.tab.active{
+  background:var(--accent);
+  color:#000;
+  border-color:transparent;
 }
 
-.skill {
-    padding:10px 20px;
-    border-radius:50px;
-    background: rgba(255,255,255,0.08);
-    border:1px solid rgba(255,255,255,0.15);
-    transition:0.3s;
-    cursor:pointer;
+/* CONTENT */
+.section{
+  display:none;
+  animation:fade .35s ease;
+}
+.section.active{display:block}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(8px)}
+  to{opacity:1;transform:translateY(0)}
 }
 
-.skill:hover {
-    background:var(--primary);
-    color:black;
-    transform:translateY(-5px);
+/* SKILLS */
+.pills{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
-/* Buttons */
-.buttons {
-    margin-top:30px;
+.pill{
+  padding:14px 18px;
+  border-radius:999px;
+  text-align:center;
+  background:rgba(255,255,255,.07);
+  border:1px solid var(--border);
+  font-size:.95rem;
 }
 
-button {
-    padding:10px 20px;
-    border:none;
-    border-radius:10px;
-    margin:5px;
-    font-weight:600;
-    cursor:pointer;
-    background:var(--primary);
-    color:black;
+/* SOCIAL */
+.social{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
 }
 
-/* Footer */
-footer {
-    margin-top:40px;
-    opacity:0.5;
-    font-size:0.8rem;
+.social a{
+  text-decoration:none;
+  color:white;
+  padding:14px;
+  border-radius:16px;
+  background:rgba(255,255,255,.08);
+  border:1px solid var(--border);
+  text-align:center;
+  font-weight:600;
 }
+
+/* FOOTER / THEMES */
+.footer{
+  margin-top:26px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  font-size:.8rem;
+  color:var(--muted);
+}
+
+.themes{
+  display:flex;
+  gap:8px;
+}
+
+.theme{
+  padding:6px 12px;
+  border-radius:999px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.dark{background:#00ffcc}
+.purple{background:#8a2be2}
 </style>
 </head>
+
 <body>
 
-<div class="container">
-<div class="profile">
+<canvas id="particles"></canvas>
+
+<div class="wrapper">
+  <div class="card">
+
     <h1>17y Developer</h1>
-    <div class="age">Reverse Engineer • Kernel Dev • Analyst</div>
-    <div class="typing" id="typing"></div>
+    <div class="subtitle">Reverse Engineer • Kernel Dev • Analyst</div>
+    <div class="desc">Malware Analysis</div>
 
-    <div class="skills">
-        <div class="skill">C++</div>
-        <div class="skill">C#</div>
-        <div class="skill">Python</div>
-        <div class="skill">Reverse Engineering</div>
-        <div class="skill">Kernel Development</div>
-        <div class="skill">Malware Analysis</div>
-        <div class="skill">Professional Unban</div>
-        <div class="skill">Cheat Developer</div>
+    <div class="tabs">
+      <button class="tab active" onclick="openTab(0)">Skills</button>
+      <button class="tab" onclick="openTab(1)">About</button>
+      <button class="tab" onclick="openTab(2)">Social</button>
     </div>
 
-    <div class="buttons">
-        <button onclick="setTheme('green')">Dark</button>
-        <button onclick="setTheme('purple')">Purple</button>
-        <button onclick="setTheme('crimson')">Crimson</button>
-        <button onclick="toggleMusic()">Music</button>
+    <!-- SKILLS -->
+    <div class="section active">
+      <div class="pills">
+        <div class="pill">C++</div>
+        <div class="pill">C#</div>
+        <div class="pill">Python</div>
+        <div class="pill">Reverse Engineering</div>
+        <div class="pill">Kernel Development</div>
+        <div class="pill">Malware Analysis</div>
+        <div class="pill">Professional Unban</div>
+        <div class="pill">Cheat Developer</div>
+      </div>
     </div>
 
-    <footer>© 2026 | 17y</footer>
-</div>
-</div>
+    <!-- ABOUT -->
+    <div class="section">
+      <p style="text-align:center;color:var(--muted);font-size:.95rem">
+        Low-level systems, reversing, kernel internals and security research.
+        Focused on performance, stealth and clean engineering.
+      </p>
+    </div>
 
-<audio id="bgMusic" loop>
-<source src="music.mp3" type="audio/mpeg">
-</audio>
+    <!-- SOCIAL -->
+    <div class="section">
+      <div class="social">
+        <a href="https://discord.com/users/kernxde" target="_blank">
+          Discord — kernxde
+        </a>
+        <a href="https://aceakey.github.io" target="_blank">
+          aceakey.github.io
+        </a>
+      </div>
+    </div>
+
+    <div class="footer">
+      <span>© aceakey</span>
+      <div class="themes">
+        <button class="theme dark" onclick="setAccent('#00ffcc')">Dark</button>
+        <button class="theme purple" onclick="setAccent('#8a2be2')">Purple</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 <script>
-// Typing Animation
-const texts = ["Reverse Engineer","Kernel Developer","Malware Analyst","Cheat Developer"];
-let count=0, index=0;
-function type(){
-    let current = texts[count];
-    document.getElementById("typing").textContent = current.slice(0,index++);
-    if(index > current.length){
-        count = (count+1)%texts.length;
-        index=0;
-    }
-    setTimeout(type,100);
-}
-type();
-
-// Theme Switcher
-function setTheme(theme){
-    if(theme==="purple"){
-        document.documentElement.style.setProperty('--primary','#aa00ff');
-        document.documentElement.style.setProperty('--bg','#14001f');
-    }
-    if(theme==="crimson"){
-        document.documentElement.style.setProperty('--primary','#ff003c');
-        document.documentElement.style.setProperty('--bg','#1a0008');
-    }
-    if(theme==="green"){
-        document.documentElement.style.setProperty('--primary','#00ffcc');
-        document.documentElement.style.setProperty('--bg','#0e0e0e');
-    }
+// TABS
+function openTab(i){
+  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
+  document.querySelectorAll('.section').forEach((s,idx)=>s.classList.toggle('active',idx===i));
 }
 
-// Music
-let music = document.getElementById("bgMusic");
-function toggleMusic(){
-    music.paused ? music.play() : music.pause();
+// THEME
+function setAccent(color){
+  document.documentElement.style.setProperty('--accent',color);
 }
+
+// PARTICLE RAIN (soft & clean)
+const c=document.getElementById('particles'),x=c.getContext('2d');
+c.width=innerWidth;c.height=innerHeight;
+const drops=[...Array(160)].map(()=>({x:Math.random()*c.width,y:Math.random()*c.height,s:Math.random()*2+1}));
+(function draw(){
+  x.clearRect(0,0,c.width,c.height);
+  x.fillStyle="rgba(255,255,255,.18)";
+  drops.forEach(d=>{
+    x.beginPath();
+    x.arc(d.x,d.y,d.s,0,Math.PI*2);
+    x.fill();
+    d.y+=d.s*.6;
+    if(d.y>c.height)d.y=0;
+  });
+  requestAnimationFrame(draw);
+})();
 </script>
 
 </body>
