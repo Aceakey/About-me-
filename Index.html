@@ -1,19 +1,20 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>17y Developer</title>
+<title>aceakey — Security Developer</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --bg:#0a0a0d;
-  --glass:rgba(255,255,255,0.08);
-  --border:rgba(255,255,255,0.18);
-  --text:#ffffff;
-  --muted:#b0b0b0;
+  --bg:#07070a;
+  --glass:rgba(255,255,255,.08);
+  --border:rgba(255,255,255,.18);
+  --text:#fff;
+  --muted:#a8a8a8;
   --accent:#ff003c;
 }
 
@@ -21,256 +22,307 @@
 
 body{
   margin:0;
-  height:100vh;
   font-family:'Inter',sans-serif;
   background:
-    radial-gradient(1200px 600px at 50% -20%, rgba(255,0,60,.12), transparent),
-    linear-gradient(#09090c,#0d0d12);
+    radial-gradient(900px 400px at 50% -10%, rgba(255,0,60,.15), transparent),
+    linear-gradient(#060608,#0b0b10);
   color:var(--text);
-  overflow:hidden;
 }
 
-/* PARTICLE RAIN */
+/* BACKGROUND PARTICLES */
 canvas{
   position:fixed;
   inset:0;
   z-index:-1;
 }
 
-/* CENTER */
+/* LAYOUT */
 .wrapper{
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
+  max-width:1100px;
+  margin:auto;
+  padding:80px 24px 120px;
 }
 
-/* LIQUID GLASS CARD */
+section{
+  margin-top:80px;
+}
+
+/* GLASS CARD */
 .card{
-  width:100%;
-  max-width:420px;
-  background:linear-gradient(
-    180deg,
-    rgba(255,255,255,.12),
-    rgba(255,255,255,.04)
-  );
-  backdrop-filter: blur(28px) saturate(140%);
-  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
   border:1px solid var(--border);
+  backdrop-filter:blur(26px) saturate(140%);
   border-radius:28px;
-  padding:36px 26px 30px;
-  box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.25),
-    0 30px 80px rgba(0,0,0,.65);
+  padding:48px;
+  box-shadow:0 40px 120px rgba(0,0,0,.7);
 }
 
-/* HEADER */
-h1{
+/* HERO */
+.hero{
+  text-align:center;
+}
+
+.hero h1{
+  font-size:3.6rem;
   margin:0;
-  font-size:2.6rem;
   font-weight:800;
-  text-align:center;
 }
 
-.subtitle{
-  margin-top:10px;
-  text-align:center;
-  font-weight:600;
+.hero span{
   color:var(--accent);
 }
 
-.desc{
-  margin-top:8px;
-  text-align:center;
+.hero p{
+  margin-top:18px;
+  font-size:1.1rem;
   color:var(--muted);
-  font-size:.95rem;
 }
 
-/* TABS */
-.tabs{
-  margin:28px 0 22px;
+.badges{
+  margin-top:28px;
   display:flex;
-  gap:10px;
   justify-content:center;
-}
-
-.tab{
-  padding:8px 16px;
-  border-radius:999px;
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--text);
-  font-weight:600;
-  cursor:pointer;
-}
-
-.tab.active{
-  background:var(--accent);
-  color:#000;
-  border-color:transparent;
-}
-
-/* CONTENT */
-.section{
-  display:none;
-  animation:fade .35s ease;
-}
-.section.active{display:block}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(8px)}
-  to{opacity:1;transform:translateY(0)}
-}
-
-/* SKILLS */
-.pills{
-  display:flex;
-  flex-direction:column;
+  flex-wrap:wrap;
   gap:12px;
 }
 
-.pill{
-  padding:14px 18px;
+.badge{
+  padding:10px 18px;
   border-radius:999px;
-  text-align:center;
+  background:rgba(255,255,255,.08);
+  border:1px solid var(--border);
+  font-weight:600;
+}
+
+/* TITLES */
+h2{
+  font-size:2.2rem;
+  margin-bottom:24px;
+}
+
+.subtitle{
+  color:var(--muted);
+  margin-bottom:32px;
+}
+
+/* GRID */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:24px;
+}
+
+/* SKILL */
+.skill{
+  padding:22px;
+  border-radius:20px;
   background:rgba(255,255,255,.07);
   border:1px solid var(--border);
-  font-size:.95rem;
+}
+
+/* PROJECT */
+.project{
+  padding:26px;
+  border-radius:22px;
+  background:rgba(255,255,255,.06);
+  border:1px solid var(--border);
+}
+
+.project h3{
+  margin-top:0;
+}
+
+.project span{
+  color:var(--accent);
+  font-size:.9rem;
+}
+
+/* TIMELINE */
+.timeline{
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+}
+
+.entry{
+  padding:24px;
+  border-left:4px solid var(--accent);
+  background:rgba(255,255,255,.06);
+  border-radius:18px;
+}
+
+/* STATS */
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:20px;
+  text-align:center;
+}
+
+.stat{
+  padding:28px;
+  border-radius:22px;
+  background:rgba(255,255,255,.07);
+  border:1px solid var(--border);
+}
+
+.stat h3{
+  margin:0;
+  font-size:2.4rem;
+  color:var(--accent);
 }
 
 /* SOCIAL */
-.social{
+.socials{
   display:flex;
   flex-direction:column;
-  gap:14px;
+  gap:16px;
 }
 
-.social a{
+.socials a{
   text-decoration:none;
   color:white;
-  padding:14px;
-  border-radius:16px;
+  padding:18px;
+  border-radius:18px;
   background:rgba(255,255,255,.08);
   border:1px solid var(--border);
-  text-align:center;
   font-weight:600;
+  text-align:center;
 }
 
-/* FOOTER / THEMES */
-.footer{
-  margin-top:26px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:.8rem;
+/* FOOTER */
+footer{
+  margin-top:120px;
+  text-align:center;
   color:var(--muted);
 }
-
-.themes{
-  display:flex;
-  gap:8px;
-}
-
-.theme{
-  padding:6px 12px;
-  border-radius:999px;
-  border:none;
-  cursor:pointer;
-  font-weight:600;
-}
-
-.dark{background:#00ffcc}
-.purple{background:#8a2be2}
 </style>
 </head>
 
 <body>
 
-<canvas id="particles"></canvas>
+<canvas id="bg"></canvas>
 
 <div class="wrapper">
-  <div class="card">
 
-    <h1>17y Developer</h1>
-    <div class="subtitle">Reverse Engineer • Kernel Dev • Analyst</div>
-    <div class="desc">Malware Analysis</div>
+<!-- HERO -->
+<section class="card hero">
+  <h1>aceakey <span>//</span> Security Developer</h1>
+  <p>Reverse Engineering • Kernel Development • Malware Analysis</p>
 
-    <div class="tabs">
-      <button class="tab active" onclick="openTab(0)">Skills</button>
-      <button class="tab" onclick="openTab(1)">About</button>
-      <button class="tab" onclick="openTab(2)">Social</button>
-    </div>
-
-    <!-- SKILLS -->
-    <div class="section active">
-      <div class="pills">
-        <div class="pill">C++</div>
-        <div class="pill">C#</div>
-        <div class="pill">Python</div>
-        <div class="pill">Reverse Engineering</div>
-        <div class="pill">Kernel Development</div>
-        <div class="pill">Malware Analysis</div>
-        <div class="pill">Professional Unban</div>
-        <div class="pill">Cheat Developer</div>
-      </div>
-    </div>
-
-    <!-- ABOUT -->
-    <div class="section">
-      <p style="text-align:center;color:var(--muted);font-size:.95rem">
-        Low-level systems, reversing, kernel internals and security research.
-        Focused on performance, stealth and clean engineering.
-      </p>
-    </div>
-
-    <!-- SOCIAL -->
-    <div class="section">
-      <div class="social">
-        <a href="https://discord.com/users/kernxde" target="_blank">
-          Discord — kernxde
-        </a>
-        <a href="https://aceakey.github.io" target="_blank">
-          aceakey.github.io
-        </a>
-      </div>
-    </div>
-
-    <div class="footer">
-      <span>© aceakey</span>
-      <div class="themes">
-        <button class="theme dark" onclick="setAccent('#00ffcc')">Dark</button>
-        <button class="theme purple" onclick="setAccent('#8a2be2')">Purple</button>
-      </div>
-    </div>
-
+  <div class="badges">
+    <div class="badge">17y</div>
+    <div class="badge">Low-Level Systems</div>
+    <div class="badge">Stealth Focused</div>
+    <div class="badge">Performance First</div>
   </div>
+</section>
+
+<!-- ABOUT -->
+<section>
+  <h2>About</h2>
+  <p class="subtitle">
+    I specialize in low-level Windows internals, reverse engineering and kernel-mode development.
+    My work focuses on stealth, performance and deep system understanding.
+  </p>
+</section>
+
+<!-- SKILLS -->
+<section>
+  <h2>Skills</h2>
+  <div class="grid">
+    <div class="skill">C++ (Low-Level / Kernel)</div>
+    <div class="skill">C# (.NET Tooling)</div>
+    <div class="skill">Python (Automation / Analysis)</div>
+    <div class="skill">Reverse Engineering</div>
+    <div class="skill">Windows Internals</div>
+    <div class="skill">Kernel Drivers</div>
+    <div class="skill">Anti-Cheat Bypass</div>
+    <div class="skill">Malware Analysis</div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section>
+  <h2>Projects & Research</h2>
+  <div class="grid">
+    <div class="project">
+      <span>Kernel</span>
+      <h3>Stealth Driver Framework</h3>
+      <p>Manual mapped kernel driver with advanced unlinking & detection resistance.</p>
+    </div>
+
+    <div class="project">
+      <span>Reverse</span>
+      <h3>Protected Binary Analysis</h3>
+      <p>Custom unpackers and devirtualization techniques.</p>
+    </div>
+
+    <div class="project">
+      <span>Security</span>
+      <h3>Anti-Cheat Research</h3>
+      <p>Behavioral detection analysis & bypass techniques.</p>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section>
+  <h2>Experience</h2>
+  <div class="timeline">
+    <div class="entry">
+      <strong>2023 – Present</strong><br>
+      Advanced kernel-mode development & malware research.
+    </div>
+    <div class="entry">
+      <strong>2022 – 2023</strong><br>
+      Reverse engineering protected applications.
+    </div>
+    <div class="entry">
+      <strong>2021 – 2022</strong><br>
+      Learning low-level C++ and Windows internals.
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section>
+  <h2>Stats</h2>
+  <div class="stats">
+    <div class="stat"><h3>5+</h3><p>Years Coding</p></div>
+    <div class="stat"><h3>20+</h3><p>Projects</p></div>
+    <div class="stat"><h3>1000+</h3><p>Hours Reversing</p></div>
+    <div class="stat"><h3>∞</h3><p>Curiosity</p></div>
+  </div>
+</section>
+
+<!-- SOCIAL -->
+<section>
+  <h2>Social</h2>
+  <div class="socials">
+    <a href="https://discord.com/users/kernxde" target="_blank">Discord — kernxde</a>
+    <a href="https://aceakey.github.io" target="_blank">Website — aceakey.github.io</a>
+  </div>
+</section>
+
+<footer>
+  © aceakey — Built clean, fast & stealthy.
+</footer>
+
 </div>
 
 <script>
-// TABS
-function openTab(i){
-  document.querySelectorAll('.tab').forEach((t,idx)=>t.classList.toggle('active',idx===i));
-  document.querySelectorAll('.section').forEach((s,idx)=>s.classList.toggle('active',idx===i));
-}
-
-// THEME
-function setAccent(color){
-  document.documentElement.style.setProperty('--accent',color);
-}
-
-// PARTICLE RAIN (soft & clean)
-const c=document.getElementById('particles'),x=c.getContext('2d');
+const c=document.getElementById('bg'),ctx=c.getContext('2d');
 c.width=innerWidth;c.height=innerHeight;
-const drops=[...Array(160)].map(()=>({x:Math.random()*c.width,y:Math.random()*c.height,s:Math.random()*2+1}));
+const dots=[...Array(180)].map(()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*2+1}));
 (function draw(){
-  x.clearRect(0,0,c.width,c.height);
-  x.fillStyle="rgba(255,255,255,.18)";
-  drops.forEach(d=>{
-    x.beginPath();
-    x.arc(d.x,d.y,d.s,0,Math.PI*2);
-    x.fill();
-    d.y+=d.s*.6;
+  ctx.clearRect(0,0,c.width,c.height);
+  ctx.fillStyle="rgba(255,255,255,.2)";
+  dots.forEach(d=>{
+    ctx.beginPath();
+    ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
+    ctx.fill();
+    d.y+=d.r*.5;
     if(d.y>c.height)d.y=0;
   });
   requestAnimationFrame(draw);
