@@ -1,240 +1,694 @@
-
 <!DOCTYPE html>
 <html lang="de">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>aceakey // Switch</title>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syncopate:wght@700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-
+    <title>Kyrxs • Portfolio</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         :root {
-            --bg: #030303;
-            --accent: #ff003c;
-            --accent-glow: rgba(255, 0, 60, 0.4);
-            --text: #ffffff;
-            --card: rgba(8, 8, 8, 0.9);
-            --border: rgba(255, 255, 255, 0.08);
+            --primary: #9d4edd;
+            --secondary: #7b2cbf;
+            --accent: #c77dff;
+            --dark: #0a0a0a;
+            --darker: #050505;
+            --text: #e0e0e0;
         }
 
-        * { box-sizing: border-box; cursor: crosshair; }
         body {
-            margin: 0; background: var(--bg); color: var(--text);
-            font-family: 'Space Mono', monospace; height: 100vh;
-            overflow: hidden; display: flex; justify-content: center; align-items: center;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--darker);
+            color: var(--text);
+            overflow: hidden;
+            cursor: none;
         }
 
-        /* --- BACKGROUNDS --- */
-        #canvas { position: fixed; inset: 0; z-index: 0; opacity: 0.3; }
-        .vignette { position: fixed; inset: 0; background: radial-gradient(circle, transparent 30%, black 140%); z-index: 2; pointer-events: none; }
-        .scanlines {
-            position: fixed; inset: 0; z-index: 10; pointer-events: none;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
-            background-size: 100% 4px;
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: all 0.1s ease;
+            transform: translate(-50%, -50%);
         }
 
-        /* --- ENTER SCREEN --- */
-        #enter-screen {
-            position: fixed; inset: 0; background: #000; z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        .cursor-follower {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: all 0.15s ease;
+            transform: translate(-50%, -50%);
         }
+
+        /* Particles Canvas */
+        #particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* Enter Screen */
+        .enter-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--darker);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        .enter-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .enter-title {
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 2rem;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { filter: drop-shadow(0 0 10px var(--primary)); }
+            50% { filter: drop-shadow(0 0 20px var(--accent)); }
+        }
+
         .enter-btn {
-            font-family: 'Syncopate', sans-serif; font-size: 1.2rem;
-            letter-spacing: 8px; color: var(--text);
-            text-shadow: 0 0 15px var(--accent-glow);
-            animation: pulse 2s infinite; border: 1px solid var(--border);
-            padding: 20px 40px; background: rgba(255,255,255,0.02);
+            padding: 1.5rem 4rem;
+            font-size: 1.2rem;
+            font-family: 'JetBrains Mono', monospace;
+            background: transparent;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
         }
 
-        /* --- MAIN INTERFACE --- */
-        #main-ui {
-            position: relative; z-index: 5; opacity: 0; transform: scale(0.9);
-            transition: all 1s ease-out; width: 100%; max-width: 450px;
+        .enter-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: var(--primary);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+            z-index: -1;
         }
 
-        .profile-card {
-            background: var(--card); border: 1px solid var(--border);
-            padding: 60px 40px; text-align: center;
-            backdrop-filter: blur(25px); position: relative;
-            box-shadow: 0 0 80px rgba(0,0,0,0.9);
+        .enter-btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
-        .profile-card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            box-shadow: 0 0 15px var(--accent);
+        .enter-btn:hover {
+            color: var(--darker);
+            border-color: var(--accent);
         }
 
-        /* TRADING TICKER */
-        .ticker {
-            position: absolute; top: 15px; left: 0; width: 100%;
-            font-size: 0.65rem; color: #00ff41; opacity: 0.6;
-            display: flex; justify-content: center; gap: 15px;
+        /* Main Content */
+        .content {
+            position: relative;
+            z-index: 2;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.5s;
+        }
+
+        .content.visible {
+            opacity: 1;
+        }
+
+        .profile-section {
+            text-align: center;
+            margin-bottom: 3rem;
         }
 
         .name {
-            font-family: 'Syncopate', sans-serif; font-size: 1.8rem;
-            margin: 0; letter-spacing: 2px;
+            font-size: 5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            animation: fadeInUp 0.8s ease;
         }
 
-        .identity-switcher {
-            margin: 25px 0; height: 20px; color: var(--accent);
-            font-weight: bold; text-transform: uppercase; font-size: 0.9rem;
-            letter-spacing: 3px;
+        .aka {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+            animation: fadeInUp 0.8s ease 0.1s backwards;
         }
 
-        /* BUTTONS */
-        .links { display: flex; flex-direction: column; gap: 12px; margin-top: 35px; }
-        .btn {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            padding: 16px; color: white; text-decoration: none;
-            display: flex; align-items: center; justify-content: space-between;
-            font-size: 0.8rem; transition: 0.3s;
-        }
-        .btn:hover {
-            border-color: var(--accent); background: rgba(255, 0, 60, 0.05);
-            box-shadow: 0 0 20px var(--accent-glow); transform: translateX(5px);
+        .age {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease 0.2s backwards;
         }
 
-        .premium { border: 1px solid var(--accent); animation: borderGlow 4s infinite; }
-
-        /* VOLUME CONTROL */
-        .controls {
-            position: absolute; bottom: 15px; right: 20px;
-            display: flex; align-items: center; gap: 10px; color: #444;
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease 0.3s backwards;
         }
-        #volume { width: 60px; accent-color: var(--accent); opacity: 0.3; transition: 0.3s; }
-        #volume:hover { opacity: 1; }
 
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        @keyframes borderGlow { 0%, 100% { border-color: var(--accent); } 50% { border-color: #444; } }
+        .skill {
+            padding: 0.8rem 1.5rem;
+            background: rgba(157, 78, 221, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 5px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .skill:hover {
+            background: rgba(157, 78, 221, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(157, 78, 221, 0.3);
+        }
+
+        .socials {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            animation: fadeInUp 0.8s ease 0.4s backwards;
+        }
+
+        .social-link {
+            color: var(--text);
+            text-decoration: none;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .social-link:hover {
+            color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Settings Panel */
+        .settings-btn {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            width: 50px;
+            height: 50px;
+            background: rgba(157, 78, 221, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+
+        .settings-btn:hover {
+            background: rgba(157, 78, 221, 0.2);
+            transform: rotate(90deg);
+        }
+
+        .settings-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: 400px;
+            height: 100vh;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+            border-left: 1px solid var(--primary);
+            padding: 2rem;
+            z-index: 99;
+            transition: right 0.3s ease;
+        }
+
+        .settings-panel.open {
+            right: 0;
+        }
+
+        .settings-title {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 2rem;
+        }
+
+        .setting-group {
+            margin-bottom: 2rem;
+        }
+
+        .setting-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+
+        .theme-options {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .theme-option {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .theme-option.active {
+            border-color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        .theme-purple-black {
+            background: linear-gradient(135deg, #9d4edd, #0a0a0a);
+        }
+
+        .theme-cyan-dark {
+            background: linear-gradient(135deg, #00f5ff, #0a0a0a);
+        }
+
+        .theme-red-black {
+            background: linear-gradient(135deg, #ff0066, #0a0a0a);
+        }
+
+        .theme-green-black {
+            background: linear-gradient(135deg, #00ff88, #0a0a0a);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            -webkit-appearance: none;
+            background: rgba(157, 78, 221, 0.2);
+            outline: none;
+            height: 5px;
+            border-radius: 5px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            cursor: pointer;
+            border-radius: 50%;
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            cursor: pointer;
+            border-radius: 50%;
+            border: none;
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: 0.4s;
+            border-radius: 30px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+        @media (max-width: 768px) {
+            .name {
+                font-size: 3rem;
+            }
+
+            .enter-title {
+                font-size: 2.5rem;
+            }
+
+            .settings-panel {
+                width: 100%;
+                right: -100%;
+            }
+        }
     </style>
 </head>
 <body>
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+    <canvas id="particles"></canvas>
 
-<audio id="bg-music" loop>
-    <source src="https://files.catbox.moe/p8hiz5.mp3" type="audio/mpeg">
-</audio>
+    <!-- Enter Screen -->
+    <div class="enter-screen" id="enterScreen">
+        <h1 class="enter-title">KYRXS</h1>
+        <button class="enter-btn" id="enterBtn">CLICK TO ENTER</button>
+    </div>
 
-<div id="enter-screen" onclick="initialize()">
-    <div class="enter-btn">ACCESS SYSTEM</div>
-    <p style="margin-top: 20px; font-size: 0.6rem; color: #333; letter-spacing: 2px;">SONG: AMNESIA - LXST CXN</p>
-</div>
+    <!-- Main Content -->
+    <div class="content" id="mainContent">
+        <div class="profile-section">
+            <h1 class="name">KYRXS</h1>
+            <p class="aka">aka ace</p>
+            <p class="age">17 years old</p>
 
-<div class="scanlines"></div>
-<div class="vignette"></div>
-<canvas id="canvas"></canvas>
+            <div class="skills">
+                <div class="skill">C++</div>
+                <div class="skill">C#</div>
+                <div class="skill">Python</div>
+                <div class="skill">Reverse Engineer x64dbg</div>
+                <div class="skill">Unpacker</div>
+                <div class="skill">Kernel Dev</div>
+                <div class="skill">Malware Analyst</div>
+                <div class="skill">Professional Unbaner lmao</div>
+                <div class="skill">Daytrader</div>
+            </div>
 
-<div id="main-ui">
-    <div class="profile-card">
-        <div class="ticker">
-            <span>BTC/USD +2.41%</span>
-            <span>ETH/USD +1.18%</span>
-            <span>SOL/USD +4.89%</span>
-        </div>
-
-        <h1 class="name">aceakey</h1>
-        
-        <div class="identity-switcher">
-            <span id="type-text"></span>
-        </div>
-
-        <div class="links">
-            <a href="https://esx.lovable.app/" target="_blank" class="btn premium">
-                <span><i class="ph ph-lightning"></i> ESX HEAVEN</span>
-                <i class="ph ph-caret-right"></i>
-            </a>
-            <a href="https://discord.com/users/kernxde" target="_blank" class="btn">
-                <span><i class="ph ph-discord-logo"></i> DISCORD</span>
-                <span>kernxde</span>
-            </a>
-            <a href="https://aceakey.github.io" target="_blank" class="btn">
-                <span><i class="ph ph-code"></i> PROJECTS</span>
-                <span>GITHUB</span>
-            </a>
-        </div>
-
-        <div class="controls">
-            <i class="ph ph-speaker-high"></i>
-            <input type="range" id="volume" min="0" max="100" value="40">
+            <div class="socials">
+                <a href="https://discord.com/users/kernxde" class="social-link" target="_blank">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                    </svg>
+                    kernxde
+                </a>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const music = document.getElementById('bg-music');
-    const typeText = document.getElementById('type-text');
-    const roles = ["Daytrader", "Reverse Engineer", "Kernel Developer", "Security Expert"];
-    let roleIdx = 0;
+    <!-- Settings Button -->
+    <div class="settings-btn" id="settingsBtn">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M12 1v6m0 6v6m0-18a9 9 0 0 1 9 9m-9 9a9 9 0 0 1-9-9m0 0a9 9 0 0 1 9-9m9 9a9 9 0 0 1-9 9"></path>
+        </svg>
+    </div>
 
-    function initialize() {
-        document.getElementById('enter-screen').style.opacity = '0';
-        setTimeout(() => {
-            document.getElementById('enter-screen').remove();
-            const ui = document.getElementById('main-ui');
-            ui.style.opacity = '1';
-            ui.style.transform = 'scale(1)';
-            music.volume = 0.4;
-            music.play();
-            startTyping();
-        }, 1200);
-    }
-
-    function startTyping() {
-        let currentRole = roles[roleIdx];
-        let charIdx = 0;
-        typeText.innerHTML = "";
+    <!-- Settings Panel -->
+    <div class="settings-panel" id="settingsPanel">
+        <h2 class="settings-title">Settings</h2>
         
-        const typeInterval = setInterval(() => {
-            typeText.innerHTML += currentRole[charIdx];
-            charIdx++;
-            if (charIdx >= currentRole.length) {
-                clearInterval(typeInterval);
-                setTimeout(eraseText, 2000);
-            }
-        }, 100);
-    }
+        <div class="setting-group">
+            <label class="setting-label">Theme</label>
+            <div class="theme-options">
+                <div class="theme-option theme-purple-black active" data-theme="purple"></div>
+                <div class="theme-option theme-cyan-dark" data-theme="cyan"></div>
+                <div class="theme-option theme-red-black" data-theme="red"></div>
+                <div class="theme-option theme-green-black" data-theme="green"></div>
+            </div>
+        </div>
 
-    function eraseText() {
-        let currentText = typeText.innerHTML;
-        const eraseInterval = setInterval(() => {
-            typeText.innerHTML = currentText.substring(0, currentText.length - 1);
-            currentText = typeText.innerHTML;
-            if (currentText.length === 0) {
-                clearInterval(eraseInterval);
-                roleIdx = (roleIdx + 1) % roles.length;
-                setTimeout(startTyping, 500);
-            }
-        }, 50);
-    }
+        <div class="setting-group">
+            <label class="setting-label">Music Volume</label>
+            <input type="range" id="volumeSlider" min="0" max="100" value="30">
+        </div>
 
-    document.getElementById('volume').addEventListener('input', (e) => {
-        music.volume = e.target.value / 100;
-    });
+        <div class="setting-group">
+            <label class="setting-label">Particles</label>
+            <label class="toggle">
+                <input type="checkbox" id="particlesToggle" checked>
+                <span class="slider"></span>
+            </label>
+        </div>
 
-    // Particle Background
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-    let particles = [];
-    function init() {
+        <div class="setting-group">
+            <label class="setting-label">Music</label>
+            <label class="toggle">
+                <input type="checkbox" id="musicToggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                cursorFollower.style.left = e.clientX + 'px';
+                cursorFollower.style.top = e.clientY + 'px';
+            }, 50);
+        });
+
+        // Particles
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
         canvas.width = window.innerWidth;
         canvas.height = window.innerHeight;
-        particles = [];
-        for(let i=0; i<80; i++) particles.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5});
-    }
-    function draw() {
-        ctx.clearRect(0,0,canvas.width, canvas.height);
-        ctx.fillStyle = "rgba(255,255,255,0.5)";
-        particles.forEach(p => {
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
-            p.y -= 0.3; if(p.y < 0) p.y = canvas.height;
+
+        let particlesArray = [];
+        let particlesEnabled = true;
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+                this.color = `rgba(157, 78, 221, ${Math.random() * 0.5 + 0.2})`;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                if (this.x > canvas.width || this.x < 0) {
+                    this.speedX *= -1;
+                }
+                if (this.y > canvas.height || this.y < 0) {
+                    this.speedY *= -1;
+                }
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            for (let i = 0; i < 100; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            if (particlesEnabled) {
+                for (let i = 0; i < particlesArray.length; i++) {
+                    particlesArray[i].update();
+                    particlesArray[i].draw();
+
+                    for (let j = i; j < particlesArray.length; j++) {
+                        const dx = particlesArray[i].x - particlesArray[j].x;
+                        const dy = particlesArray[i].y - particlesArray[j].y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+
+                        if (distance < 100) {
+                            ctx.strokeStyle = `rgba(157, 78, 221, ${0.2 - distance / 500})`;
+                            ctx.lineWidth = 0.5;
+                            ctx.beginPath();
+                            ctx.moveTo(particlesArray[i].x, particlesArray[i].y);
+                            ctx.lineTo(particlesArray[j].x, particlesArray[j].y);
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            requestAnimationFrame(animateParticles);
+        }
+
+        initParticles();
+        animateParticles();
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            initParticles();
         });
-        requestAnimationFrame(draw);
-    }
-    window.onresize = init;
-    init(); draw();
-</script>
+
+        // Enter Screen
+        const enterBtn = document.getElementById('enterBtn');
+        const enterScreen = document.getElementById('enterScreen');
+        const mainContent = document.getElementById('mainContent');
+        let audio;
+
+        enterBtn.addEventListener('click', () => {
+            enterScreen.classList.add('hidden');
+            mainContent.classList.add('visible');
+            
+            // Initialize audio
+            audio = new Audio('https://cdn.pixabay.com/audio/2022/05/27/audio_1808fbf07a.mp3');
+            audio.loop = true;
+            audio.volume = 0.3;
+        });
+
+        // Settings
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const themeOptions = document.querySelectorAll('.theme-option');
+        const volumeSlider = document.getElementById('volumeSlider');
+        const particlesToggle = document.getElementById('particlesToggle');
+        const musicToggle = document.getElementById('musicToggle');
+
+        settingsBtn.addEventListener('click', () => {
+            settingsPanel.classList.toggle('open');
+        });
+
+        // Theme switching
+        const themes = {
+            purple: { primary: '#9d4edd', secondary: '#7b2cbf', accent: '#c77dff' },
+            cyan: { primary: '#00f5ff', secondary: '#00d4ff', accent: '#5ffbf1' },
+            red: { primary: '#ff0066', secondary: '#cc0052', accent: '#ff3385' },
+            green: { primary: '#00ff88', secondary: '#00cc6e', accent: '#33ffaa' }
+        };
+
+        themeOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                themeOptions.forEach(opt => opt.classList.remove('active'));
+                option.classList.add('active');
+
+                const theme = option.dataset.theme;
+                const colors = themes[theme];
+
+                document.documentElement.style.setProperty('--primary', colors.primary);
+                document.documentElement.style.setProperty('--secondary', colors.secondary);
+                document.documentElement.style.setProperty('--accent', colors.accent);
+            });
+        });
+
+        // Volume control
+        volumeSlider.addEventListener('input', (e) => {
+            if (audio) {
+                audio.volume = e.target.value / 100;
+            }
+        });
+
+        // Particles toggle
+        particlesToggle.addEventListener('change', (e) => {
+            particlesEnabled = e.target.checked;
+            if (!particlesEnabled) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        });
+
+        // Music toggle
+        musicToggle.addEventListener('change', (e) => {
+            if (audio) {
+                if (e.target.checked) {
+                    audio.play();
+                } else {
+                    audio.pause();
+                }
+            }
+        });
+
+        // Click outside settings to close
+        document.addEventListener('click', (e) => {
+            if (!settingsPanel.contains(e.target) && !settingsBtn.contains(e.target)) {
+                settingsPanel.classList.remove('open');
+            }
+        });
+    </script>
 </body>
 </html>
