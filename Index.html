@@ -1,333 +1,240 @@
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>aceakey — Security Developer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>aceakey // Switch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #030303;
+            --accent: #ff003c;
+            --accent-glow: rgba(255, 0, 60, 0.4);
+            --text: #ffffff;
+            --card: rgba(8, 8, 8, 0.9);
+            --border: rgba(255, 255, 255, 0.08);
+        }
 
-<style>
-:root{
-  --bg:#07070a;
-  --glass:rgba(255,255,255,.08);
-  --border:rgba(255,255,255,.18);
-  --text:#fff;
-  --muted:#a8a8a8;
-  --accent:#ff003c;
-}
+        * { box-sizing: border-box; cursor: crosshair; }
+        body {
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: 'Space Mono', monospace; height: 100vh;
+            overflow: hidden; display: flex; justify-content: center; align-items: center;
+        }
 
-*{box-sizing:border-box}
+        /* --- BACKGROUNDS --- */
+        #canvas { position: fixed; inset: 0; z-index: 0; opacity: 0.3; }
+        .vignette { position: fixed; inset: 0; background: radial-gradient(circle, transparent 30%, black 140%); z-index: 2; pointer-events: none; }
+        .scanlines {
+            position: fixed; inset: 0; z-index: 10; pointer-events: none;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.15) 50%);
+            background-size: 100% 4px;
+        }
 
-body{
-  margin:0;
-  font-family:'Inter',sans-serif;
-  background:
-    radial-gradient(900px 400px at 50% -10%, rgba(255,0,60,.15), transparent),
-    linear-gradient(#060608,#0b0b10);
-  color:var(--text);
-}
+        /* --- ENTER SCREEN --- */
+        #enter-screen {
+            position: fixed; inset: 0; background: #000; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .enter-btn {
+            font-family: 'Syncopate', sans-serif; font-size: 1.2rem;
+            letter-spacing: 8px; color: var(--text);
+            text-shadow: 0 0 15px var(--accent-glow);
+            animation: pulse 2s infinite; border: 1px solid var(--border);
+            padding: 20px 40px; background: rgba(255,255,255,0.02);
+        }
 
-/* BACKGROUND PARTICLES */
-canvas{
-  position:fixed;
-  inset:0;
-  z-index:-1;
-}
+        /* --- MAIN INTERFACE --- */
+        #main-ui {
+            position: relative; z-index: 5; opacity: 0; transform: scale(0.9);
+            transition: all 1s ease-out; width: 100%; max-width: 450px;
+        }
 
-/* LAYOUT */
-.wrapper{
-  max-width:1100px;
-  margin:auto;
-  padding:80px 24px 120px;
-}
+        .profile-card {
+            background: var(--card); border: 1px solid var(--border);
+            padding: 60px 40px; text-align: center;
+            backdrop-filter: blur(25px); position: relative;
+            box-shadow: 0 0 80px rgba(0,0,0,0.9);
+        }
 
-section{
-  margin-top:80px;
-}
+        .profile-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent), transparent);
+            box-shadow: 0 0 15px var(--accent);
+        }
 
-/* GLASS CARD */
-.card{
-  background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.04));
-  border:1px solid var(--border);
-  backdrop-filter:blur(26px) saturate(140%);
-  border-radius:28px;
-  padding:48px;
-  box-shadow:0 40px 120px rgba(0,0,0,.7);
-}
+        /* TRADING TICKER */
+        .ticker {
+            position: absolute; top: 15px; left: 0; width: 100%;
+            font-size: 0.65rem; color: #00ff41; opacity: 0.6;
+            display: flex; justify-content: center; gap: 15px;
+        }
 
-/* HERO */
-.hero{
-  text-align:center;
-}
+        .name {
+            font-family: 'Syncopate', sans-serif; font-size: 1.8rem;
+            margin: 0; letter-spacing: 2px;
+        }
 
-.hero h1{
-  font-size:3.6rem;
-  margin:0;
-  font-weight:800;
-}
+        .identity-switcher {
+            margin: 25px 0; height: 20px; color: var(--accent);
+            font-weight: bold; text-transform: uppercase; font-size: 0.9rem;
+            letter-spacing: 3px;
+        }
 
-.hero span{
-  color:var(--accent);
-}
+        /* BUTTONS */
+        .links { display: flex; flex-direction: column; gap: 12px; margin-top: 35px; }
+        .btn {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 16px; color: white; text-decoration: none;
+            display: flex; align-items: center; justify-content: space-between;
+            font-size: 0.8rem; transition: 0.3s;
+        }
+        .btn:hover {
+            border-color: var(--accent); background: rgba(255, 0, 60, 0.05);
+            box-shadow: 0 0 20px var(--accent-glow); transform: translateX(5px);
+        }
 
-.hero p{
-  margin-top:18px;
-  font-size:1.1rem;
-  color:var(--muted);
-}
+        .premium { border: 1px solid var(--accent); animation: borderGlow 4s infinite; }
 
-.badges{
-  margin-top:28px;
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:12px;
-}
+        /* VOLUME CONTROL */
+        .controls {
+            position: absolute; bottom: 15px; right: 20px;
+            display: flex; align-items: center; gap: 10px; color: #444;
+        }
+        #volume { width: 60px; accent-color: var(--accent); opacity: 0.3; transition: 0.3s; }
+        #volume:hover { opacity: 1; }
 
-.badge{
-  padding:10px 18px;
-  border-radius:999px;
-  background:rgba(255,255,255,.08);
-  border:1px solid var(--border);
-  font-weight:600;
-}
-
-/* TITLES */
-h2{
-  font-size:2.2rem;
-  margin-bottom:24px;
-}
-
-.subtitle{
-  color:var(--muted);
-  margin-bottom:32px;
-}
-
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:24px;
-}
-
-/* SKILL */
-.skill{
-  padding:22px;
-  border-radius:20px;
-  background:rgba(255,255,255,.07);
-  border:1px solid var(--border);
-}
-
-/* PROJECT */
-.project{
-  padding:26px;
-  border-radius:22px;
-  background:rgba(255,255,255,.06);
-  border:1px solid var(--border);
-}
-
-.project h3{
-  margin-top:0;
-}
-
-.project span{
-  color:var(--accent);
-  font-size:.9rem;
-}
-
-/* TIMELINE */
-.timeline{
-  display:flex;
-  flex-direction:column;
-  gap:22px;
-}
-
-.entry{
-  padding:24px;
-  border-left:4px solid var(--accent);
-  background:rgba(255,255,255,.06);
-  border-radius:18px;
-}
-
-/* STATS */
-.stats{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:20px;
-  text-align:center;
-}
-
-.stat{
-  padding:28px;
-  border-radius:22px;
-  background:rgba(255,255,255,.07);
-  border:1px solid var(--border);
-}
-
-.stat h3{
-  margin:0;
-  font-size:2.4rem;
-  color:var(--accent);
-}
-
-/* SOCIAL */
-.socials{
-  display:flex;
-  flex-direction:column;
-  gap:16px;
-}
-
-.socials a{
-  text-decoration:none;
-  color:white;
-  padding:18px;
-  border-radius:18px;
-  background:rgba(255,255,255,.08);
-  border:1px solid var(--border);
-  font-weight:600;
-  text-align:center;
-}
-
-/* FOOTER */
-footer{
-  margin-top:120px;
-  text-align:center;
-  color:var(--muted);
-}
-</style>
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        @keyframes borderGlow { 0%, 100% { border-color: var(--accent); } 50% { border-color: #444; } }
+    </style>
 </head>
-
 <body>
 
-<canvas id="bg"></canvas>
+<audio id="bg-music" loop>
+    <source src="https://files.catbox.moe/p8hiz5.mp3" type="audio/mpeg">
+</audio>
 
-<div class="wrapper">
+<div id="enter-screen" onclick="initialize()">
+    <div class="enter-btn">ACCESS SYSTEM</div>
+    <p style="margin-top: 20px; font-size: 0.6rem; color: #333; letter-spacing: 2px;">SONG: AMNESIA - LXST CXN</p>
+</div>
 
-<!-- HERO -->
-<section class="card hero">
-  <h1>aceakey <span>//</span> Security Developer</h1>
-  <p>Reverse Engineering • Kernel Development • Malware Analysis</p>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+<canvas id="canvas"></canvas>
 
-  <div class="badges">
-    <div class="badge">17y</div>
-    <div class="badge">Low-Level Systems</div>
-    <div class="badge">Stealth Focused</div>
-    <div class="badge">Performance First</div>
-  </div>
-</section>
+<div id="main-ui">
+    <div class="profile-card">
+        <div class="ticker">
+            <span>BTC/USD +2.41%</span>
+            <span>ETH/USD +1.18%</span>
+            <span>SOL/USD +4.89%</span>
+        </div>
 
-<!-- ABOUT -->
-<section>
-  <h2>About</h2>
-  <p class="subtitle">
-    I specialize in low-level Windows internals, reverse engineering and kernel-mode development.
-    My work focuses on stealth, performance and deep system understanding.
-  </p>
-</section>
+        <h1 class="name">aceakey</h1>
+        
+        <div class="identity-switcher">
+            <span id="type-text"></span>
+        </div>
 
-<!-- SKILLS -->
-<section>
-  <h2>Skills</h2>
-  <div class="grid">
-    <div class="skill">C++ (Low-Level / Kernel)</div>
-    <div class="skill">C# (.NET Tooling)</div>
-    <div class="skill">Python (Automation / Analysis)</div>
-    <div class="skill">Reverse Engineering</div>
-    <div class="skill">Windows Internals</div>
-    <div class="skill">Kernel Drivers</div>
-    <div class="skill">Anti-Cheat Bypass</div>
-    <div class="skill">Malware Analysis</div>
-  </div>
-</section>
+        <div class="links">
+            <a href="https://esx.lovable.app/" target="_blank" class="btn premium">
+                <span><i class="ph ph-lightning"></i> ESX HEAVEN</span>
+                <i class="ph ph-caret-right"></i>
+            </a>
+            <a href="https://discord.com/users/kernxde" target="_blank" class="btn">
+                <span><i class="ph ph-discord-logo"></i> DISCORD</span>
+                <span>kernxde</span>
+            </a>
+            <a href="https://aceakey.github.io" target="_blank" class="btn">
+                <span><i class="ph ph-code"></i> PROJECTS</span>
+                <span>GITHUB</span>
+            </a>
+        </div>
 
-<!-- PROJECTS -->
-<section>
-  <h2>Projects & Research</h2>
-  <div class="grid">
-    <div class="project">
-      <span>Kernel</span>
-      <h3>Stealth Driver Framework</h3>
-      <p>Manual mapped kernel driver with advanced unlinking & detection resistance.</p>
+        <div class="controls">
+            <i class="ph ph-speaker-high"></i>
+            <input type="range" id="volume" min="0" max="100" value="40">
+        </div>
     </div>
-
-    <div class="project">
-      <span>Reverse</span>
-      <h3>Protected Binary Analysis</h3>
-      <p>Custom unpackers and devirtualization techniques.</p>
-    </div>
-
-    <div class="project">
-      <span>Security</span>
-      <h3>Anti-Cheat Research</h3>
-      <p>Behavioral detection analysis & bypass techniques.</p>
-    </div>
-  </div>
-</section>
-
-<!-- EXPERIENCE -->
-<section>
-  <h2>Experience</h2>
-  <div class="timeline">
-    <div class="entry">
-      <strong>2023 – Present</strong><br>
-      Advanced kernel-mode development & malware research.
-    </div>
-    <div class="entry">
-      <strong>2022 – 2023</strong><br>
-      Reverse engineering protected applications.
-    </div>
-    <div class="entry">
-      <strong>2021 – 2022</strong><br>
-      Learning low-level C++ and Windows internals.
-    </div>
-  </div>
-</section>
-
-<!-- STATS -->
-<section>
-  <h2>Stats</h2>
-  <div class="stats">
-    <div class="stat"><h3>5+</h3><p>Years Coding</p></div>
-    <div class="stat"><h3>20+</h3><p>Projects</p></div>
-    <div class="stat"><h3>1000+</h3><p>Hours Reversing</p></div>
-    <div class="stat"><h3>∞</h3><p>Curiosity</p></div>
-  </div>
-</section>
-
-<!-- SOCIAL -->
-<section>
-  <h2>Social</h2>
-  <div class="socials">
-    <a href="https://discord.com/users/kernxde" target="_blank">Discord — kernxde</a>
-    <a href="https://aceakey.github.io" target="_blank">Website — aceakey.github.io</a>
-  </div>
-</section>
-
-<footer>
-  © aceakey — Built clean, fast & stealthy.
-</footer>
-
 </div>
 
 <script>
-const c=document.getElementById('bg'),ctx=c.getContext('2d');
-c.width=innerWidth;c.height=innerHeight;
-const dots=[...Array(180)].map(()=>({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*2+1}));
-(function draw(){
-  ctx.clearRect(0,0,c.width,c.height);
-  ctx.fillStyle="rgba(255,255,255,.2)";
-  dots.forEach(d=>{
-    ctx.beginPath();
-    ctx.arc(d.x,d.y,d.r,0,Math.PI*2);
-    ctx.fill();
-    d.y+=d.r*.5;
-    if(d.y>c.height)d.y=0;
-  });
-  requestAnimationFrame(draw);
-})();
-</script>
+    const music = document.getElementById('bg-music');
+    const typeText = document.getElementById('type-text');
+    const roles = ["Daytrader", "Reverse Engineer", "Kernel Developer", "Security Expert"];
+    let roleIdx = 0;
 
+    function initialize() {
+        document.getElementById('enter-screen').style.opacity = '0';
+        setTimeout(() => {
+            document.getElementById('enter-screen').remove();
+            const ui = document.getElementById('main-ui');
+            ui.style.opacity = '1';
+            ui.style.transform = 'scale(1)';
+            music.volume = 0.4;
+            music.play();
+            startTyping();
+        }, 1200);
+    }
+
+    function startTyping() {
+        let currentRole = roles[roleIdx];
+        let charIdx = 0;
+        typeText.innerHTML = "";
+        
+        const typeInterval = setInterval(() => {
+            typeText.innerHTML += currentRole[charIdx];
+            charIdx++;
+            if (charIdx >= currentRole.length) {
+                clearInterval(typeInterval);
+                setTimeout(eraseText, 2000);
+            }
+        }, 100);
+    }
+
+    function eraseText() {
+        let currentText = typeText.innerHTML;
+        const eraseInterval = setInterval(() => {
+            typeText.innerHTML = currentText.substring(0, currentText.length - 1);
+            currentText = typeText.innerHTML;
+            if (currentText.length === 0) {
+                clearInterval(eraseInterval);
+                roleIdx = (roleIdx + 1) % roles.length;
+                setTimeout(startTyping, 500);
+            }
+        }, 50);
+    }
+
+    document.getElementById('volume').addEventListener('input', (e) => {
+        music.volume = e.target.value / 100;
+    });
+
+    // Particle Background
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+    function init() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        particles = [];
+        for(let i=0; i<80; i++) particles.push({x: Math.random()*canvas.width, y: Math.random()*canvas.height, s: Math.random()*1.5});
+    }
+    function draw() {
+        ctx.clearRect(0,0,canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255,255,255,0.5)";
+        particles.forEach(p => {
+            ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI*2); ctx.fill();
+            p.y -= 0.3; if(p.y < 0) p.y = canvas.height;
+        });
+        requestAnimationFrame(draw);
+    }
+    window.onresize = init;
+    init(); draw();
+</script>
 </body>
 </html>
