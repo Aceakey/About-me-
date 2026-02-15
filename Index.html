@@ -850,6 +850,63 @@
     }
 
     /* Music Player */
+    .unmute-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(10, 10, 15, 0.95);
+        backdrop-filter: blur(10px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9998;
+        cursor: pointer;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .unmute-overlay.visible {
+        opacity: 1;
+        pointer-events: all;
+    }
+
+    .unmute-content {
+        text-align: center;
+        animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .sound-icon {
+        font-size: 5rem;
+        margin-bottom: 1.5rem;
+        animation: bounce 1s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-10px); }
+    }
+
+    .unmute-content h3 {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .unmute-content p {
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+    }
+
     .music-player {
         position: fixed;
         bottom: 2rem;
@@ -1405,6 +1462,15 @@
     </footer>
 </div>
 
+<!-- Unmute Overlay -->
+<div class="unmute-overlay" id="unmuteOverlay">
+    <div class="unmute-content">
+        <div class="sound-icon">🔊</div>
+        <h3>Click anywhere to unmute</h3>
+        <p>Sound is muted by default</p>
+    </div>
+</div>
+
 <!-- Music Player -->
 <div class="music-player paused" id="musicPlayer">
     <div class="music-header">
@@ -1446,6 +1512,17 @@
 </audio>
 
 <script>
+    // Audio element
+    const audio = document.getElementById('audio');
+    const musicPlayer = document.getElementById('musicPlayer');
+    const unmuteOverlay = document.getElementById('unmuteOverlay');
+    const playBtn = document.getElementById('playBtn');
+    const playIcon = document.getElementById('playIcon');
+    const pauseIcon = document.getElementById('pauseIcon');
+    const volumeSlider = document.getElementById('volumeSlider');
+    
+    let audioUnlocked = false;
+
     // Loading screen
     window.addEventListener('load', () => {
         setTimeout(() => {
@@ -1456,52 +1533,73 @@
         }, 1500);
     });
 
-    // Enter button with proper audio handling
+    // Enter button
     const enterBtn = document.getElementById('enterBtn');
     const enterScreen = document.getElementById('enterScreen');
     const mainContent = document.getElementById('mainContent');
-    const audio = document.getElementById('audio');
-    const musicPlayer = document.getElementById('musicPlayer');
 
     enterBtn.addEventListener('click', async () => {
+        enterScreen.classList.add('hidden');
+        mainContent.classList.add('visible');
+        
+        // Prepare audio
+        audio.volume = 0;
+        audio.muted = true;
+        
         try {
-            enterScreen.classList.add('hidden');
-            mainContent.classList.add('visible');
-            
-            // Set volume first
-            audio.volume = 0.5;
-            
-            // Try to play with proper error handling
-            try {
-                await audio.play();
-                // Success - update UI
-                musicPlayer.classList.remove('paused');
-                document.getElementById('playIcon').style.display = 'none';
-                document.getElementById('pauseIcon').style.display = 'block';
-                console.log('Music playing: LXST CXNT - Amnesia');
-            } catch (playError) {
-                // Autoplay blocked - show play button
-                console.log('Autoplay blocked by browser - click play to start music');
-                musicPlayer.classList.add('paused');
-            }
+            // Try to start audio muted
+            await audio.play();
+            // Show unmute overlay
+            setTimeout(() => {
+                unmuteOverlay.classList.add('visible');
+            }, 500);
         } catch (error) {
-            console.error('Error during enter:', error);
+            console.log('Audio autoplay prevented, waiting for user interaction');
+            unmuteOverlay.classList.add('visible');
         }
     });
 
-    // Music controls
-    const playBtn = document.getElementById('playBtn');
-    const playIcon = document.getElementById('playIcon');
-    const pauseIcon = document.getElementById('pauseIcon');
-    const volumeSlider = document.getElementById('volumeSlider');
+    // Unmute on any click
+    unmuteOverlay.addEventListener('click', async () => {
+        try {
+            if (audio.paused) {
+                await audio.play();
+            }
+            
+            audio.muted = false;
+            audio.volume = 0.5;
+            audioUnlocked = true;
+            
+            // Update UI
+            musicPlayer.classList.remove('paused');
+            playIcon.style.display = 'none';
+            pauseIcon.style.display = 'block';
+            
+            // Hide overlay
+            unmuteOverlay.classList.remove('visible');
+            
+            console.log('🎵 Now playing: LXST CXNT - Amnesia');
+        } catch (error) {
+            console.error('Failed to unmute:', error);
+        }
+    });
 
-    playBtn.addEventListener('click', async () => {
+    // Play/Pause button
+    playBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        
         try {
             if (audio.paused) {
                 await audio.play();
                 playIcon.style.display = 'none';
                 pauseIcon.style.display = 'block';
                 musicPlayer.classList.remove('paused');
+                
+                if (!audioUnlocked) {
+                    audio.muted = false;
+                    audio.volume = volumeSlider.value / 100;
+                    audioUnlocked = true;
+                }
             } else {
                 audio.pause();
                 playIcon.style.display = 'block';
@@ -1513,14 +1611,18 @@
         }
     });
 
+    // Volume control
     volumeSlider.addEventListener('input', (e) => {
-        audio.volume = e.target.value / 100;
+        if (audioUnlocked) {
+            audio.volume = e.target.value / 100;
+        }
     });
 
     // Handle audio errors
     audio.addEventListener('error', (e) => {
         console.error('Audio loading error:', e);
-        console.log('Please make sure the audio file (amnesia.mp3) is in the same directory as index.html');
+        console.log('Make sure the audio file exists in the same directory as index.html');
+        console.log('Supported filenames: amnesia.mp3, Amnesia.mp3, LXST CXNT - Amnesia.mp3, music.mp3, audio.mp3');
     });
 
     // Smooth scroll
