@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyrxs - Developer & Reverse Engineer</title>
+    <title>ace • Kyrxs</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -15,34 +15,131 @@
         }
 
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #121212;
-            --bg-tertiary: #1a1a1a;
-            --text-primary: #ffffff;
-            --text-secondary: #b3b3b3;
-            --text-tertiary: #666666;
-            --accent: #9d4edd;
-            --accent-hover: #b968f5;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-main: #0a0a0f;
+            --bg-card: #13131a;
+            --bg-card-hover: #1a1a24;
+            --text-primary: #e8e8f0;
+            --text-secondary: #9999b3;
+            --text-muted: #666680;
+            --accent-purple: #8b5cf6;
+            --accent-pink: #ec4899;
+            --accent-blue: #3b82f6;
+            --border-color: rgba(139, 92, 246, 0.2);
+            --glow-purple: rgba(139, 92, 246, 0.5);
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-main);
             color: var(--text-primary);
             overflow-x: hidden;
-            line-height: 1.6;
+            line-height: 1.7;
         }
 
-        /* Canvas Background */
-        #canvas {
+        /* Animated Grid Background */
+        .grid-background {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background-image: 
+                linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
             z-index: 0;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Floating Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
             opacity: 0.4;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--accent-purple);
+            top: -200px;
+            left: -200px;
+            animation: float 25s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 500px;
+            height: 500px;
+            background: var(--accent-pink);
+            bottom: -250px;
+            right: -250px;
+            animation: float 30s ease-in-out infinite reverse;
+        }
+
+        .orb-3 {
+            width: 350px;
+            height: 350px;
+            background: var(--accent-blue);
+            top: 50%;
+            left: 50%;
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(100px, -100px) scale(1.1); }
+            66% { transform: translate(-50px, 100px) scale(0.9); }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--bg-main);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            transition: opacity 0.8s ease, visibility 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader {
+            width: 80px;
+            height: 80px;
+            border: 3px solid var(--bg-card);
+            border-top: 3px solid var(--accent-purple);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 2rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            letter-spacing: 0.2em;
         }
 
         /* Enter Screen */
@@ -52,223 +149,390 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: var(--bg-primary);
+            background: linear-gradient(135deg, var(--bg-main) 0%, #0f0f1a 100%);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
-            transition: opacity 0.8s ease, visibility 0.8s ease;
+            opacity: 0;
+            transition: opacity 0.5s ease 0.3s, transform 1s ease;
+        }
+
+        .enter-screen.visible {
+            opacity: 1;
         }
 
         .enter-screen.hidden {
             opacity: 0;
-            visibility: hidden;
+            transform: scale(0.95);
+            pointer-events: none;
         }
 
-        .enter-title {
-            font-size: 6rem;
-            font-weight: 700;
-            margin-bottom: 2rem;
-            letter-spacing: -0.02em;
-            background: linear-gradient(135deg, var(--accent), #c77dff);
+        .terminal-window {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .terminal-header {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .terminal-btn {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .terminal-btn.red { background: #ff5f56; }
+        .terminal-btn.yellow { background: #ffbd2e; }
+        .terminal-btn.green { background: #27c93f; }
+
+        .terminal-content {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .terminal-line {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .terminal-line .prompt {
+            color: var(--accent-purple);
+            margin-right: 0.5rem;
+        }
+
+        .terminal-line .path {
+            color: var(--accent-blue);
+        }
+
+        .terminal-title {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 1.5rem 0 0.5rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            animation: pulse 2s ease-in-out infinite;
+            font-family: 'Outfit', sans-serif;
         }
 
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.02); opacity: 0.9; }
+        .terminal-subtitle {
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
         }
 
-        .enter-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-secondary);
-            margin-bottom: 3rem;
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
-        }
-
-        .enter-btn {
-            padding: 1rem 3rem;
+        .enter-button {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border: none;
+            color: white;
+            font-family: 'JetBrains Mono', monospace;
             font-size: 1rem;
             font-weight: 600;
-            font-family: 'Inter', sans-serif;
-            background: transparent;
-            color: var(--text-primary);
-            border: 2px solid var(--accent);
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
+            border-radius: 8px;
             transition: all 0.3s ease;
-            text-transform: lowercase;
+            text-transform: uppercase;
             letter-spacing: 0.1em;
         }
 
-        .enter-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: var(--accent);
-            transition: left 0.4s ease;
-            z-index: -1;
-        }
-
-        .enter-btn:hover::before {
-            left: 0;
-        }
-
-        .enter-btn:hover {
-            border-color: var(--accent-hover);
+        .enter-button:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 30px var(--glow-purple);
         }
 
-        /* Language Selector */
-        .lang-selector {
-            position: fixed;
-            top: 2rem;
-            right: 2rem;
-            display: flex;
-            gap: 1rem;
-            z-index: 100;
-            opacity: 0;
-            transition: opacity 0.5s ease 0.8s;
-        }
-
-        .lang-selector.visible {
-            opacity: 1;
-        }
-
-        .lang-btn {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            color: var(--text-secondary);
-            padding: 0.5rem 1rem;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-        }
-
-        .lang-btn:hover,
-        .lang-btn.active {
-            background: var(--accent);
-            color: var(--text-primary);
-            border-color: var(--accent);
-        }
-
-        /* Main Container */
-        .container {
-            position: relative;
-            z-index: 1;
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.8s ease 0.5s, transform 0.8s ease 0.5s;
-        }
-
-        .container.visible {
-            opacity: 1;
+        .enter-button:active {
             transform: translateY(0);
         }
 
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 4rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border);
+        /* Main Content */
+        .main-content {
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            transition: opacity 1s ease 0.5s;
         }
 
-        .name {
-            font-size: 4rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            letter-spacing: -0.02em;
+        .main-content.visible {
+            opacity: 1;
         }
 
-        .subtitle {
-            font-size: 1.25rem;
-            color: var(--text-secondary);
-            font-weight: 400;
-        }
-
-        /* Stats */
-        .stats {
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 4rem;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
             display: flex;
-            justify-content: center;
-            gap: 3rem;
-            margin: 2rem 0;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .stat {
+        .nav-logo {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            color: var(--text-primary);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 4rem 4rem;
             text-align: center;
         }
 
-        .stat-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--accent);
+        .hero-content {
+            max-width: 900px;
+        }
+
+        .hero-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .hero-title {
+            font-size: 6rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+        }
+
+        .title-gradient {
+            background: linear-gradient(135deg, var(--accent-purple) 0%, var(--accent-pink) 50%, var(--accent-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 5s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .hero-subtitle {
+            font-size: 2.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+            font-weight: 300;
+        }
+
+        .hero-description {
+            font-size: 1.3rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 3rem;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+        }
+
+        .stat-box {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: 'JetBrains Mono', monospace;
         }
 
         .stat-label {
             font-size: 0.9rem;
-            color: var(--text-tertiary);
+            color: var(--text-muted);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
+            margin-top: 0.5rem;
         }
 
-        /* About Section */
+        .hero-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 1.2rem 3rem;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px var(--glow-purple);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--accent-purple);
+            color: var(--text-primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--accent-purple);
+            transform: translateY(-3px);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 4rem;
+        }
+
         .section {
+            padding: 6rem 0;
+        }
+
+        .section-header {
+            text-align: center;
             margin-bottom: 4rem;
         }
 
-        .section-title {
-            font-size: 2rem;
-            font-weight: 600;
+        .section-tag {
+            display: inline-block;
+            padding: 0.5rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--accent-purple);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            font-weight: 700;
             margin-bottom: 1.5rem;
-            position: relative;
-            padding-left: 1rem;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .section-title::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 4px;
-            height: 60%;
-            background: var(--accent);
+        .section-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
         }
 
-        .about-text {
-            font-size: 1.1rem;
+        .section-description {
+            font-size: 1.2rem;
             color: var(--text-secondary);
-            line-height: 1.8;
+            max-width: 700px;
+            margin: 0 auto;
         }
 
         /* Skills */
         .skills-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-top: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
         }
 
         .skill-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            padding: 1.5rem;
-            transition: all 0.3s ease;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2.5rem;
+            transition: all 0.4s ease;
             position: relative;
             overflow: hidden;
         }
@@ -279,110 +543,308 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, var(--accent), transparent);
-            transform: translateX(-100%);
-            transition: transform 0.5s ease;
-        }
-
-        .skill-card:hover::before {
-            transform: translateX(0);
+            height: 4px;
+            background: linear-gradient(90deg, var(--accent-purple), var(--accent-pink));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
         }
 
         .skill-card:hover {
-            border-color: var(--accent);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(157, 78, 221, 0.2);
+            transform: translateY(-10px);
+            border-color: var(--accent-purple);
+            background: var(--bg-card-hover);
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3);
         }
 
-        .skill-name {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
+        .skill-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .skill-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .skill-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .skill-title-group h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
         }
 
         .skill-level {
-            font-size: 0.9rem;
-            color: var(--accent);
-            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--accent-purple);
             text-transform: uppercase;
-            letter-spacing: 0.05em;
+            letter-spacing: 0.1em;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .skill-desc {
-            font-size: 0.95rem;
-            color: var(--text-tertiary);
-            line-height: 1.6;
+        .skill-description {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
         }
 
-        .skill-tags {
+        .skill-tools {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
-            margin-top: 0.75rem;
+            gap: 0.75rem;
         }
 
-        .skill-tag {
-            padding: 0.25rem 0.75rem;
-            background: var(--bg-tertiary);
-            border: 1px solid var(--border);
-            font-size: 0.8rem;
+        .tool-badge {
+            padding: 0.5rem 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            font-size: 0.85rem;
             color: var(--text-secondary);
+            font-family: 'JetBrains Mono', monospace;
             transition: all 0.3s ease;
         }
 
-        .skill-tag:hover {
-            border-color: var(--accent);
-            color: var(--accent);
+        .tool-badge:hover {
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+            background: rgba(139, 92, 246, 0.2);
         }
 
-        /* Socials */
-        .socials {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            flex-wrap: wrap;
+        /* Projects - Featured Large Card */
+        .project-featured {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            max-width: 1000px;
+            margin: 0 auto;
         }
 
-        .social-link {
+        .project-featured:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent-purple);
+            box-shadow: 0 30px 80px rgba(139, 92, 246, 0.4);
+        }
+
+        .project-featured-banner {
+            height: 350px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(236, 72, 153, 0.4));
             display: flex;
             align-items: center;
-            gap: 0.75rem;
-            padding: 1rem 2rem;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            color: var(--text-primary);
-            text-decoration: none;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+            justify-content: center;
+            font-size: 8rem;
             position: relative;
             overflow: hidden;
         }
 
-        .social-link::before {
+        .project-featured-banner::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: var(--accent);
-            transition: left 0.4s ease;
-            z-index: -1;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s ease-in-out infinite;
         }
 
-        .social-link:hover::before {
-            left: 0;
+        @keyframes shine {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
 
-        .social-link:hover {
-            border-color: var(--accent);
+        .project-featured-content {
+            padding: 3rem;
+        }
+
+        .project-featured-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1.5rem;
+        }
+
+        .project-status {
+            padding: 0.5rem 1.5rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .project-featured-title {
+            font-size: 3rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .project-featured-description {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            font-size: 1.15rem;
+        }
+
+        .project-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: start;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(139, 92, 246, 0.05);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .feature-icon {
+            font-size: 1.5rem;
+        }
+
+        .feature-text h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .feature-text p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .tech-badge {
+            padding: 0.5rem 1.25rem;
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 0.9rem;
+            color: var(--accent-purple);
+            font-weight: 600;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .project-footer {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .project-btn {
+            flex: 1;
+            padding: 1rem;
+            background: transparent;
+            border: 1px solid var(--accent-purple);
+            color: var(--text-primary);
+            text-decoration: none;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .project-btn:hover {
+            background: var(--accent-purple);
+        }
+
+        /* Contact */
+        .contact-box {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 4rem;
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .contact-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            margin: 0 auto 2rem;
+        }
+
+        .contact-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .contact-description {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            line-height: 1.8;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .social-btn {
+            padding: 1rem 2rem;
+            background: var(--bg-card-hover);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .social-btn:hover {
+            border-color: var(--accent-purple);
+            background: var(--accent-purple);
             transform: translateY(-3px);
-        }
-
-        .social-icon {
-            width: 20px;
-            height: 20px;
         }
 
         /* Music Player */
@@ -390,480 +852,701 @@
             position: fixed;
             bottom: 2rem;
             right: 2rem;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            padding: 1rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            z-index: 100;
-            opacity: 0;
-            transition: all 0.3s ease, opacity 0.5s ease 1s;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        .music-player.visible {
-            opacity: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            min-width: 350px;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            transition: all 0.3s ease;
         }
 
         .music-player:hover {
-            border-color: var(--accent);
+            border-color: var(--accent-purple);
+            box-shadow: 0 15px 50px var(--glow-purple);
         }
 
-        .music-info {
+        .music-header {
             display: flex;
-            flex-direction: column;
-            gap: 0.25rem;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
         }
 
-        .music-title {
-            font-size: 0.9rem;
-            font-weight: 600;
+        .album-art {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--accent-purple), var(--accent-pink));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            animation: rotate 10s linear infinite;
         }
 
-        .music-artist {
-            font-size: 0.8rem;
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .music-player.paused .album-art {
+            animation-play-state: paused;
+        }
+
+        .track-info h4 {
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .track-info p {
             color: var(--text-secondary);
+            font-size: 0.9rem;
         }
 
         .music-controls {
             display: flex;
-            gap: 0.5rem;
             align-items: center;
+            gap: 1rem;
         }
 
-        .music-btn {
-            background: transparent;
+        .play-btn {
+            width: 40px;
+            height: 40px;
+            background: var(--accent-purple);
             border: none;
-            color: var(--text-primary);
+            border-radius: 50%;
             cursor: pointer;
-            padding: 0.5rem;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: all 0.3s ease;
         }
 
-        .music-btn:hover {
-            color: var(--accent);
+        .play-btn:hover {
             transform: scale(1.1);
+            box-shadow: 0 5px 15px var(--glow-purple);
+        }
+
+        .volume-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
         }
 
         .volume-slider {
-            width: 80px;
+            flex: 1;
             -webkit-appearance: none;
-            background: var(--bg-tertiary);
-            outline: none;
             height: 4px;
+            background: rgba(139, 92, 246, 0.2);
             border-radius: 2px;
+            outline: none;
         }
 
         .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
-            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-purple);
             border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 8px var(--glow-purple);
         }
 
         .volume-slider::-moz-range-thumb {
-            width: 12px;
-            height: 12px;
-            background: var(--accent);
-            cursor: pointer;
+            width: 16px;
+            height: 16px;
+            background: var(--accent-purple);
             border-radius: 50%;
-            border: none;
-        }
-
-        /* Settings Gear */
-        .settings-gear {
-            position: fixed;
-            top: 2rem;
-            left: 2rem;
-            width: 50px;
-            height: 50px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             cursor: pointer;
-            z-index: 100;
-            transition: all 0.3s ease;
-            opacity: 0;
+            border: none;
+            box-shadow: 0 2px 8px var(--glow-purple);
         }
 
-        .settings-gear.visible {
-            opacity: 1;
-            transition: opacity 0.5s ease 0.8s, all 0.3s ease;
-        }
-
-        .settings-gear:hover {
-            border-color: var(--accent);
-            transform: rotate(90deg);
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border-color);
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
-            .enter-title {
-                font-size: 3rem;
+        @media (max-width: 1024px) {
+            .navbar {
+                padding: 1rem 2rem;
             }
 
-            .name {
-                font-size: 2.5rem;
+            .container {
+                padding: 0 2rem;
             }
 
-            .stats {
-                gap: 1.5rem;
+            .hero-title {
+                font-size: 4rem;
+            }
+
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .skills-grid {
                 grid-template-columns: 1fr;
             }
 
+            .project-features {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+
+            .hero-subtitle {
+                font-size: 1.8rem;
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+
+            .project-featured-title {
+                font-size: 2rem;
+            }
+
+            .nav-menu {
+                display: none;
+            }
+
             .music-player {
-                bottom: 1rem;
                 right: 1rem;
                 left: 1rem;
-                padding: 0.75rem 1rem;
+                min-width: unset;
             }
 
-            .volume-slider {
-                width: 60px;
+            .hero-buttons {
+                flex-direction: column;
+                width: 100%;
             }
 
-            .lang-selector {
-                top: 1rem;
-                right: 1rem;
-                gap: 0.5rem;
+            .btn {
+                width: 100%;
+                justify-content: center;
             }
 
-            .settings-gear {
-                top: 1rem;
-                left: 1rem;
+            .project-featured-content {
+                padding: 2rem;
             }
-        }
-
-        /* Loading Animation */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeInUp 0.6s ease forwards;
         }
     </style>
 </head>
 <body>
-    <canvas id="canvas"></canvas>
+    <div class="grid-background"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+        <div class="loading-text">LOADING...</div>
+    </div>
 
     <!-- Enter Screen -->
     <div class="enter-screen" id="enterScreen">
-        <h1 class="enter-title">KYRXS</h1>
-        <p class="enter-subtitle">Developer & Reverse Engineer</p>
-        <button class="enter-btn" id="enterBtn">enter</button>
-    </div>
-
-    <!-- Language Selector -->
-    <div class="lang-selector" id="langSelector">
-        <button class="lang-btn active">EN</button>
-        <button class="lang-btn">DE</button>
-    </div>
-
-    <!-- Settings Gear -->
-    <div class="settings-gear" id="settingsGear">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 1v6m0 6v6m0-18a9 9 0 0 1 9 9m-9 9a9 9 0 0 1-9-9m0 0a9 9 0 0 1 9-9m9 9a9 9 0 0 1-9 9"></path>
-        </svg>
-    </div>
-
-    <!-- Main Container -->
-    <div class="container" id="mainContainer">
-        <!-- Header -->
-        <div class="header">
-            <h1 class="name">Kyrxs</h1>
-            <p class="subtitle">Developer & Reverse Engineer</p>
-            
-            <div class="stats">
-                <div class="stat">
-                    <div class="stat-value">17</div>
-                    <div class="stat-label">Years Old</div>
+        <div class="terminal-window">
+            <div class="terminal-header">
+                <div class="terminal-btn red"></div>
+                <div class="terminal-btn yellow"></div>
+                <div class="terminal-btn green"></div>
+            </div>
+            <div class="terminal-content">
+                <div class="terminal-line">
+                    <span class="prompt">$</span>
+                    <span class="path">~</span> cd /home/kyrxs
                 </div>
-                <div class="stat">
-                    <div class="stat-value">online</div>
-                    <div class="stat-label">Status</div>
+                <div class="terminal-line">
+                    <span class="prompt">$</span>
+                    <span class="path">~/kyrxs</span> ./init.sh
                 </div>
-                <div class="stat">
-                    <div class="stat-value">Worldwide</div>
-                    <div class="stat-label">Based</div>
+                <div class="terminal-line" style="color: #10b981;">
+                    ✓ System initialized successfully
                 </div>
+                <h1 class="terminal-title">KYRXS</h1>
+                <p class="terminal-subtitle">ace • reverse engineer • developer</p>
+                <button class="enter-button" id="enterBtn">
+                    &gt; ACCESS GRANTED
+                </button>
             </div>
         </div>
+    </div>
 
-        <!-- About Section -->
-        <div class="section">
-            <h2 class="section-title">Hi, I'm Kyrxs</h2>
-            <p class="about-text">
-                aka ace — Passionate developer focused on reverse engineering, kernel development, and security. 
-                I work with C++, C#, and Python, utilizing tools like x64dbg for unpacking and malware analysis. 
-                Professional unbaner and daytrader in my free time.
-            </p>
-        </div>
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Navigation -->
+        <nav class="navbar">
+            <div class="nav-logo">ace</div>
+            <ul class="nav-menu">
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#skills" class="nav-link">Skills</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+        </nav>
 
-        <!-- Skills Section -->
-        <div class="section">
-            <h2 class="section-title">Skills</h2>
-            <div class="skills-grid">
-                <div class="skill-card">
-                    <div class="skill-name">C++</div>
-                    <div class="skill-level">Advanced</div>
-                    <div class="skill-desc">High-performance applications and system programming</div>
+        <!-- Hero Section -->
+        <section class="hero" id="about">
+            <div class="hero-content">
+                <div class="hero-tag">
+                    <span class="status-indicator"></span>
+                    <span>AVAILABLE FOR WORK</span>
                 </div>
-
-                <div class="skill-card">
-                    <div class="skill-name">C#</div>
-                    <div class="skill-level">Advanced</div>
-                    <div class="skill-desc">Desktop applications and .NET development</div>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-name">Python</div>
-                    <div class="skill-level">Intermediate</div>
-                    <div class="skill-desc">Tool development and automation scripts</div>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-name">Reverse Engineering</div>
-                    <div class="skill-level">Advanced</div>
-                    <div class="skill-desc">Binary analysis and unpacking</div>
-                    <div class="skill-tags">
-                        <span class="skill-tag">x64dbg</span>
-                        <span class="skill-tag">IDA Pro</span>
+                <h1 class="hero-title">
+                    <span class="title-gradient">Kyrxs</span>
+                </h1>
+                <p class="hero-subtitle">aka ace</p>
+                <p class="hero-description">
+                    17-year-old reverse engineer, kernel developer, and malware analyst. 
+                    Specializing in low-level programming, security research, and system exploitation. 
+                    Professional unbaner & daytrader.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-box">
+                        <div class="stat-number">17</div>
+                        <div class="stat-label">Years Old</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">5+</div>
+                        <div class="stat-label">Languages</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">3+</div>
+                        <div class="stat-label">Years XP</div>
+                    </div>
+                    <div class="stat-box">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Online</div>
                     </div>
                 </div>
-
-                <div class="skill-card">
-                    <div class="skill-name">Kernel Development</div>
-                    <div class="skill-level">Intermediate</div>
-                    <div class="skill-desc">Low-level system programming and drivers</div>
-                </div>
-
-                <div class="skill-card">
-                    <div class="skill-name">Malware Analysis</div>
-                    <div class="skill-level">Advanced</div>
-                    <div class="skill-desc">Analyzing and understanding malicious software</div>
+                <div class="hero-buttons">
+                    <a href="#projects" class="btn btn-primary">
+                        View Project
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                    <a href="#contact" class="btn btn-outline">Get in Touch</a>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- Socials Section -->
-        <div class="section">
-            <h2 class="section-title">Connect</h2>
-            <div class="socials">
-                <a href="https://discord.com/users/kernxde" class="social-link" target="_blank">
-                    <svg class="social-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
-                    </svg>
-                    kernxde
-                </a>
+        <!-- Skills Section -->
+        <section class="section" id="skills">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">EXPERTISE</span>
+                    <h2 class="section-title">Technical Arsenal</h2>
+                    <p class="section-description">
+                        Mastering the dark arts of reverse engineering, kernel-mode programming, 
+                        and security research
+                    </p>
+                </div>
+                <div class="skills-grid">
+                    <div class="skill-card">
+                        <div class="skill-header">
+                            <div class="skill-icon">⚡</div>
+                            <div class="skill-title-group">
+                                <h3>C++</h3>
+                                <div class="skill-level">EXPERT</div>
+                            </div>
+                        </div>
+                        <p class="skill-description">
+                            Advanced low-level programming, game hacking, memory manipulation, 
+                            and performance-critical applications. Expert in Win32 API and DirectX.
+                        </p>
+                        <div class="skill-tools">
+                            <span class="tool-badge">MSVC</span>
+                            <span class="tool-badge">GCC</span>
+                            <span class="tool-badge">Win32</span>
+                            <span class="tool-badge">STL</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-card">
+                        <div class="skill-header">
+                            <div class="skill-icon">🎯</div>
+                            <div class="skill-title-group">
+                                <h3>C#</h3>
+                                <div class="skill-level">ADVANCED</div>
+                            </div>
+                        </div>
+                        <p class="skill-description">
+                            .NET framework mastery, desktop application development, automation tools, 
+                            and Unity game development for rapid prototyping.
+                        </p>
+                        <div class="skill-tools">
+                            <span class="tool-badge">.NET 8</span>
+                            <span class="tool-badge">WPF</span>
+                            <span class="tool-badge">Unity</span>
+                            <span class="tool-badge">IL</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-card">
+                        <div class="skill-header">
+                            <div class="skill-icon">🐍</div>
+                            <div class="skill-title-group">
+                                <h3>Python</h3>
+                                <div class="skill-level">INTERMEDIATE</div>
+                            </div>
+                        </div>
+                        <p class="skill-description">
+                            Scripting automation, tool development, web scraping, and data analysis. 
+                            Perfect for quick prototypes and exploit development.
+                        </p>
+                        <div class="skill-tools">
+                            <span class="tool-badge">Requests</span>
+                            <span class="tool-badge">PyQt5</span>
+                            <span class="tool-badge">NumPy</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-card">
+                        <div class="skill-header">
+                            <div class="skill-icon">🔓</div>
+                            <div class="skill-title-group">
+                                <h3>Reverse Engineering</h3>
+                                <div class="skill-level">EXPERT</div>
+                            </div>
+                        </div>
+                        <p class="skill-description">
+                            Binary analysis, unpacking, software cracking, anti-cheat bypass, 
+                            and protection analysis. Specialized in x64 architecture.
+                        </p>
+                        <div class="skill-tools">
+                            <span class="tool-badge">x64dbg</span>
+                            <span class="tool-badge">IDA Pro</span>
+                            <span class="tool-badge">Ghidra</span>
+                            <span class="tool-badge">dnSpy</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-card">
+                        <div class="skill-header">
+                            <div class="skill-icon">⚙️</div>
+                            <div class="skill-title-group">
+                                <h3>Kernel Development</h3>
+                                <div class="skill-level">ADVANCED</div>
+                            </div>
+                        </div>
+                        <p class="skill-description">
+                            Windows kernel driver development, system hooking, SSDT manipulation, 
+                            and rootkit techniques. Focus on stealth and anti-detection.
+                        </p>
+                        <div class="skill-tools">
+                            <span class="tool-badge">WDK</span>
+                            <span class="tool-badge">WinDbg</span>
+                            <span class="tool-badge">KMDF</span>
+                            <span class="tool-badge">IOCTL</span>
+                        </div>
+                    </div>
+
+                    <div class="skill-card">
+                        <div class="skill-header">
+                            <div class="skill-icon">🦠</div>
+                            <div class="skill-title-group">
+                                <h3>Malware Analysis</h3>
+                                <div class="skill-level">EXPERT</div>
+                            </div>
+                        </div>
+                        <p class="skill-description">
+                            Static and dynamic malware analysis, behavioral analysis, 
+                            IOC extraction. Experience with RATs, stealers, and crypters.
+                        </p>
+                        <div class="skill-tools">
+                            <span class="tool-badge">Cuckoo</span>
+                            <span class="tool-badge">YARA</span>
+                            <span class="tool-badge">PE-Bear</span>
+                            <span class="tool-badge">Wireshark</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
+        </section>
+
+        <!-- Projects Section - ESX Heaven Featured -->
+        <section class="section" id="projects">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">FEATURED PROJECT</span>
+                    <h2 class="section-title">ESX Heaven</h2>
+                    <p class="section-description">
+                        Hardware ID Spoofer - Get Unbanned in 30 Seconds
+                    </p>
+                </div>
+                
+                <div class="project-featured">
+                    <div class="project-featured-banner">🛡️</div>
+                    <div class="project-featured-content">
+                        <div class="project-featured-header">
+                            <h3 class="project-featured-title">ESX Heaven</h3>
+                            <span class="project-status status-active">ACTIVE</span>
+                        </div>
+                        
+                        <p class="project-featured-description">
+                            Professional hardware ID spoofing solution for instant ban evasion across all major gaming platforms. 
+                            Built with cutting-edge kernel-mode technology, ESX Heaven provides undetectable HWID modification 
+                            with military-grade anti-detection. Get unbanned from any game in under 30 seconds with our 
+                            advanced spoofing algorithms and zero-trace operation.
+                        </p>
+
+                        <div class="project-features">
+                            <div class="feature-item">
+                                <div class="feature-icon">⚡</div>
+                                <div class="feature-text">
+                                    <h4>Instant Unban</h4>
+                                    <p>30-second hardware ID spoofing</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🛡️</div>
+                                <div class="feature-text">
+                                    <h4>Anti-Detection</h4>
+                                    <p>Kernel-level stealth protection</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🎮</div>
+                                <div class="feature-text">
+                                    <h4>Universal Support</h4>
+                                    <p>Works with all major games</p>
+                                </div>
+                            </div>
+                            <div class="feature-item">
+                                <div class="feature-icon">🔐</div>
+                                <div class="feature-text">
+                                    <h4>100% OPSEC</h4>
+                                    <p>Zero-trace operation</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="project-tech">
+                            <span class="tech-badge">C++</span>
+                            <span class="tech-badge">Kernel Mode</span>
+                            <span class="tech-badge">WMI</span>
+                            <span class="tech-badge">Registry</span>
+                            <span class="tech-badge">HWID Spoof</span>
+                            <span class="tech-badge">Anti-Cheat Bypass</span>
+                            <span class="tech-badge">Assembly</span>
+                        </div>
+
+                        <div class="project-footer">
+                            <a href="https://esx.lovable.app/" class="project-btn" target="_blank">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                                    <polyline points="15 3 21 3 21 9"></polyline>
+                                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                                </svg>
+                                Visit Website
+                            </a>
+                            <a href="#contact" class="project-btn">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                </svg>
+                                Contact for Access
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section class="section" id="contact">
+            <div class="container">
+                <div class="section-header">
+                    <span class="section-tag">GET IN TOUCH</span>
+                    <h2 class="section-title">Let's Connect</h2>
+                </div>
+                <div class="contact-box">
+                    <div class="contact-icon">💬</div>
+                    <h3 class="contact-title">Ready to Collaborate?</h3>
+                    <p class="contact-description">
+                        Available for ESX Heaven access, custom development, security consulting, 
+                        and collaborations. Hit me up on Discord for fastest response!
+                    </p>
+                    <div class="social-buttons">
+                        <a href="https://discord.com/users/kernxde" class="social-btn" target="_blank">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515a.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0a12.64 12.64 0 0 0-.617-1.25a.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057a19.9 19.9 0 0 0 5.993 3.03a.078.078 0 0 0 .084-.028a14.09 14.09 0 0 0 1.226-1.994a.076.076 0 0 0-.041-.106a13.107 13.107 0 0 1-1.872-.892a.077.077 0 0 1-.008-.128a10.2 10.2 0 0 0 .372-.292a.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127a12.299 12.299 0 0 1-1.873.892a.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028a19.839 19.839 0 0 0 6.002-3.03a.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.956-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419c0-1.333.955-2.419 2.157-2.419c1.21 0 2.176 1.096 2.157 2.42c0 1.333-.946 2.418-2.157 2.418z"/>
+                            </svg>
+                            kernxde
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2025 Kyrxs • Built with caffeine and late-night code sessions</p>
+        </footer>
     </div>
 
     <!-- Music Player -->
-    <div class="music-player" id="musicPlayer">
-        <div class="music-info">
-            <div class="music-title">Amnesia</div>
-            <div class="music-artist">LXST CXNT</div>
+    <div class="music-player paused" id="musicPlayer">
+        <div class="music-header">
+            <div class="album-art">🎵</div>
+            <div class="track-info">
+                <h4>Amnesia</h4>
+                <p>LXST CXNT</p>
+            </div>
         </div>
         <div class="music-controls">
-            <button class="music-btn" id="playPauseBtn">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" id="pauseIcon">
-                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+            <button class="play-btn" id="playBtn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" id="playIcon">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
                 </svg>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" id="playIcon" style="display:none;">
-                    <path d="M8 5v14l11-7z"/>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="white" id="pauseIcon" style="display:none;">
+                    <rect x="6" y="4" width="4" height="16"></rect>
+                    <rect x="14" y="4" width="4" height="16"></rect>
                 </svg>
             </button>
-            <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
+            <div class="volume-container">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="50">
+            </div>
         </div>
     </div>
 
-    <!-- Audio Element -->
-    <audio id="bgMusic" loop>
-        <source src="https://cdn.pixabay.com/audio/2022/10/25/audio_c8c3f1c3f0.mp3" type="audio/mpeg">
+    <!-- Audio - LXST CXNT Amnesia -->
+    <audio id="audio" loop preload="auto">
+        <!-- Using a dark/phonk track as placeholder for LXST CXNT style -->
+        <source src="https://cdn.pixabay.com/audio/2024/08/08/audio_51658c43d9.mp3" type="audio/mpeg">
     </audio>
 
     <script>
-        // Canvas Animation
-        const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        let particles = [];
-        const particleCount = 80;
-        const mouse = { x: null, y: null, radius: 150 };
-
-        window.addEventListener('mousemove', (e) => {
-            mouse.x = e.x;
-            mouse.y = e.y;
+        // Loading screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+                setTimeout(() => {
+                    document.getElementById('enterScreen').classList.add('visible');
+                }, 300);
+            }, 1500);
         });
 
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = Math.random() * 0.5 - 0.25;
-                this.speedY = Math.random() * 0.5 - 0.25;
-            }
-
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
-                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
-
-                // Mouse interaction
-                const dx = mouse.x - this.x;
-                const dy = mouse.y - this.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-
-                if (distance < mouse.radius) {
-                    const forceX = dx / distance;
-                    const forceY = dy / distance;
-                    const force = (mouse.radius - distance) / mouse.radius;
-                    this.x -= forceX * force * 2;
-                    this.y -= forceY * force * 2;
-                }
-            }
-
-            draw() {
-                ctx.fillStyle = 'rgba(157, 78, 221, 0.6)';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        function init() {
-            particles = [];
-            for (let i = 0; i < particleCount; i++) {
-                particles.push(new Particle());
-            }
-        }
-
-        function connect() {
-            for (let a = 0; a < particles.length; a++) {
-                for (let b = a; b < particles.length; b++) {
-                    const dx = particles[a].x - particles[b].x;
-                    const dy = particles[a].y - particles[b].y;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-
-                    if (distance < 120) {
-                        const opacity = 1 - distance / 120;
-                        ctx.strokeStyle = `rgba(157, 78, 221, ${opacity * 0.2})`;
-                        ctx.lineWidth = 1;
-                        ctx.beginPath();
-                        ctx.moveTo(particles[a].x, particles[a].y);
-                        ctx.lineTo(particles[b].x, particles[b].y);
-                        ctx.stroke();
-                    }
-                }
-            }
-        }
-
-        function animate() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            particles.forEach(particle => {
-                particle.update();
-                particle.draw();
-            });
-
-            connect();
-            requestAnimationFrame(animate);
-        }
-
-        init();
-        animate();
-
-        window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            init();
-        });
-
-        // Enter Screen
+        // Enter button with proper audio handling
         const enterBtn = document.getElementById('enterBtn');
         const enterScreen = document.getElementById('enterScreen');
-        const mainContainer = document.getElementById('mainContainer');
-        const langSelector = document.getElementById('langSelector');
-        const settingsGear = document.getElementById('settingsGear');
+        const mainContent = document.getElementById('mainContent');
+        const audio = document.getElementById('audio');
         const musicPlayer = document.getElementById('musicPlayer');
-        const bgMusic = document.getElementById('bgMusic');
 
-        enterBtn.addEventListener('click', () => {
-            enterScreen.classList.add('hidden');
-            
-            setTimeout(() => {
-                mainContainer.classList.add('visible');
-                langSelector.classList.add('visible');
-                settingsGear.classList.add('visible');
-                musicPlayer.classList.add('visible');
+        enterBtn.addEventListener('click', async () => {
+            try {
+                enterScreen.classList.add('hidden');
+                mainContent.classList.add('visible');
                 
-                // Auto-play music
-                bgMusic.volume = 0.5;
-                bgMusic.play().catch(e => console.log('Audio autoplay prevented'));
-            }, 500);
+                // Set volume first
+                audio.volume = 0.5;
+                
+                // Try to play with proper error handling
+                try {
+                    await audio.play();
+                    // Success - update UI
+                    musicPlayer.classList.remove('paused');
+                    document.getElementById('playIcon').style.display = 'none';
+                    document.getElementById('pauseIcon').style.display = 'block';
+                    console.log('Music playing: LXST CXNT - Amnesia');
+                } catch (playError) {
+                    // Autoplay blocked - show play button
+                    console.log('Autoplay blocked by browser - click play to start music');
+                    musicPlayer.classList.add('paused');
+                }
+            } catch (error) {
+                console.error('Error during enter:', error);
+            }
         });
 
-        // Music Controls
-        const playPauseBtn = document.getElementById('playPauseBtn');
+        // Music controls
+        const playBtn = document.getElementById('playBtn');
         const playIcon = document.getElementById('playIcon');
         const pauseIcon = document.getElementById('pauseIcon');
         const volumeSlider = document.getElementById('volumeSlider');
 
-        playPauseBtn.addEventListener('click', () => {
-            if (bgMusic.paused) {
-                bgMusic.play();
-                playIcon.style.display = 'none';
-                pauseIcon.style.display = 'block';
-            } else {
-                bgMusic.pause();
-                playIcon.style.display = 'block';
-                pauseIcon.style.display = 'none';
+        playBtn.addEventListener('click', async () => {
+            try {
+                if (audio.paused) {
+                    await audio.play();
+                    playIcon.style.display = 'none';
+                    pauseIcon.style.display = 'block';
+                    musicPlayer.classList.remove('paused');
+                } else {
+                    audio.pause();
+                    playIcon.style.display = 'block';
+                    pauseIcon.style.display = 'none';
+                    musicPlayer.classList.add('paused');
+                }
+            } catch (error) {
+                console.error('Playback error:', error);
             }
         });
 
         volumeSlider.addEventListener('input', (e) => {
-            bgMusic.volume = e.target.value / 100;
+            audio.volume = e.target.value / 100;
         });
 
-        // Language buttons
-        const langBtns = document.querySelectorAll('.lang-btn');
-        langBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                langBtns.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+        // Handle audio errors
+        audio.addEventListener('error', (e) => {
+            console.error('Audio loading error:', e);
+        });
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
             });
         });
 
-        // Settings gear (can be expanded)
-        settingsGear.addEventListener('click', () => {
-            alert('Settings panel coming soon!');
+        // Scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Animate cards on scroll
+        document.querySelectorAll('.skill-card, .project-featured').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(40px)';
+            el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(el);
         });
     </script>
 </body>
